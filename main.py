@@ -1,12 +1,13 @@
 import os
 import shutil
 import zipfile
+import hashlib
 import logging
 import requests
 from tqdm import tqdm
 
 MOD_GITHUB_REPOSITORY_ROOT = "https://github.com/IrisuM/ManosabaMod/"
-MIRROR_SITE_BASE_URL = ""
+MIRROR_SITE_BASE_URL = "https://gh-proxy.com/"
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -30,7 +31,7 @@ def download_mod_release(repo_root: str):
     # Saved for later, allowing for an cli arg or config file, to download from github mirrors.
     # Example addr: https://github.com/IrisuM/ManosabaMod/releases/download/v2.0.1/ManosabaMod.zip
     # https://github.com/IrisuM/ManosabaMod/releases/latest/download/ManosabaMod.zip
-    logger.info("正在从仓库Releases地址下载最新版mod压缩包.")
+    logger.info("正在从镜像仓库Releases地址下载最新版mod压缩包.")
     try:
         download(
             url = repo_root + "releases/latest/download/ManosabaMod.zip",
@@ -47,7 +48,47 @@ def check_release_existence(release_zip_path: str):
         return False
     else:
         return True
-        
+
+def release_hash_check(release_zip_path: str):
+    try:
+        api_url = "https://api.github.com/repos/IrisuM/ManosabaMod/" + "releases/latest"
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2026-03-10"
+        }
+
+        release_info_request = requests.get(api_url, headers=headers)
+        if not release_info_request.ok:
+            raise requests.exceptions.ConnectionError("Release info request not ok.")
+        release_info_json = release_info_request.json()
+        assets = release_info_json["assets"]
+        digest = "PENDING"
+        for asset in assets:
+            if asset["name"] == "ManosabaMod.zip":
+                digest = asset["digest"]
+                
+        if digest == "PENDING":
+            raise ValueError("No valid digest for ManosabaMod release file")
+
+        digest = digest[7:]
+        logger.info("源仓库Release的hash值：%s", digest)
+
+        # Opening the actual zip file for check
+        with open("ManosabaMod.zip", "rb") as file:
+            file_digest = hashlib.file_digest(file, "sha256")
+        file_digest_hex = file_digest.hexdigest()
+
+        if file_digest_hex == digest:
+            logger.info("检查通过！文件正常。")
+        else:
+            logger.warning("检查不通过！请删除后重新执行。")
+            raise ValueError("File digest does not match.")
+
+
+    except Exception as exc:
+        logger.error("Exception during hash check: %s", exc)
+        raise exc
+
 
 def unzip_mod_release_and_copy(release_zip_path: str):
     try:
@@ -88,10 +129,10 @@ def main():
         if release_existence:
             logger.debug("存在，不再下载。")
         else:
-            logger.debug("不存在，从源仓库下载。")
-            logger.debug("默认采用镜像站的设计不够安全，目前暂时不加入。")
+            logger.debug("不存在，从镜像仓库下载。")
+            logger.debug("通过hash检测后，可以确认下载下来的文件的确没被篡改。")
             download_mod_release(MIRROR_SITE_BASE_URL + MOD_GITHUB_REPOSITORY_ROOT)
-
+        release_hash_check("ManosabaMod.zip")
         unzip_mod_release_and_copy("ManosabaMod.zip")
         input("安装脚本正常执行完毕，按回车结束脚本。")
 
