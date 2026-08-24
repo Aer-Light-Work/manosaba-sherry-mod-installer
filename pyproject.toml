@@ -1,0 +1,11 @@
+[project]
+name = "manosaba-sherry-mod-installer"
+version = "1.0.0"
+description = "An unofficial installer for installing IrisuM/ManosabaMod"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "brotli>=1.2.0",
+    "requests>=2.34.2",
+    "tqdm>=4.70.0",
+]

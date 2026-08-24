@@ -1,8 +1,29 @@
 # manosaba-sherry-mod-installer
-This is an *UNOFFICIAL* script for installing IrisuM/ManosabaMod.
-Due to the nature of this part-time project, I can't guarantee this script will install it smoothly.
-Still, if it helps, I'd be more than glad to see that.
-
-这是一个用于安装 (IrisuM/ManosabaMod)[https://github.com/IrisuM/ManosabaMod] 的小脚本。
-因为只是个业余时间兴趣项目，我无法保证安装顺利。
+这是一个用于安装 [IrisuM/ManosabaMod](https://github.com/IrisuM/ManosabaMod) 的小脚本。
+因为只是个非官方作品，而且算是业余时间里的兴趣项目，我保证不了安装顺利。
 但如果这个项目的确帮助到你了，我十分荣幸。
+
+注意，因为本项目还在起步阶段，部分逻辑不一定严密！
+请务必和手动安装mod一样，安装前备份原版游戏存档和文件！
+
+## 使用方法
+去 Actions 页面获取到本项目打包好的运行程序。
+将下载得到的可执行程序放在魔裁的根目录，也就是有manosaba.exe的文件夹里。
+打开等待脚本执行即可。
+
+## 运行逻辑
+这个脚本的运行逻辑比较简单。首先，从原项目releases获取模组的.zip发行文件。
+
+随后简要检查压缩包是否损坏，如果通过了简单检测，那么直接进行解压，到新创建的workdir文件夹下。
+
+之后，从workdir文件夹里的ManosabaMod文件夹中复制，将所有文件和文件夹复制到当前位置。
+由此，完成安装。
+
+## 使用的库
+- requests: 用于下载
+- tqdm: 进度条
+
+## 潜在问题与未来改进计划
+1. 目前没有设计配置文件和命令行参数
+2. 没有检验sha256是否和远端github页面一致
+3. 暂且没有提供支持从代理服务器访问github的选项，也没有提供使用镜像站的选项
