@@ -70,7 +70,7 @@ def unzip_mod_release_and_copy(release_zip_path: str):
             zipfile_instance.extractall(path="workdir/", members=zipfile_instance.namelist())
 
             # And copy'em
-            shutil.copytree("workdir/ManosabaMod/", "test_target_dir/", dirs_exist_ok=True)
+            shutil.copytree("workdir/ManosabaMod/", "./", dirs_exist_ok=True)
 
             logger.info("复制完成。请查看原模组文档确认是否安装起效。")
 
@@ -89,7 +89,7 @@ def main():
             logger.debug("存在，不再下载。")
         else:
             logger.debug("不存在，从源仓库下载。")
-            logger.debug("默认采用镜像站的设计不够安全，目前暂时加入。")
+            logger.debug("默认采用镜像站的设计不够安全，目前暂时不加入。")
             download_mod_release(MIRROR_SITE_BASE_URL + MOD_GITHUB_REPOSITORY_ROOT)
 
         unzip_mod_release_and_copy("ManosabaMod.zip")
